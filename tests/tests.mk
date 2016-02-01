@@ -30,6 +30,13 @@ $(TST_SHORT_TESTS_STAMP):
 	if [ -n "$${res}" ]; then echo -e "license header checking failed:\n$${res}"; exit 1; fi; \
 	$(call vb,vt,GO TEST,$(TST_GO_TEST_PACKAGES)) \
 	$(GO_ENV) "$(GO)" test -timeout 60s -cover $(RKT_TAGS) $(TST_GO_TEST_PACKAGES) --race
+	echo "mode: count" > profile.cov; \
+	for file in $(TST_GO_TEST_PACKAGES); do \
+	  # echo $${file}; \
+		$(GO_ENV) "$(GO)" test -timeout 60s -covermode=count -coverprofile=profile_tmp.cov $(RKT_TAGS) $${file} --race; \
+		tail -n +2 profile_tmp.cov >> profile.cov; \
+	done; \
+	$(GO_ENV) goveralls -v -coverprofile=profile.cov
 
 TOPLEVEL_CHECK_STAMPS += $(TST_SHORT_TESTS_STAMP)
 TOPLEVEL_UNIT_CHECK_STAMPS += $(TST_SHORT_TESTS_STAMP)
